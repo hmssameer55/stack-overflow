@@ -2,6 +2,9 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import ModeToggle from "./theme-toggler";
+import MobileNav from "./mobile-nav";
+import GlobalSearch from "../search/GlobalSearch";
 
 const Navbar = () => {
   return (
@@ -19,9 +22,9 @@ const Navbar = () => {
           <span className="text-primary-500">Overflow</span>
         </p>
       </Link>
-
+      <GlobalSearch />
       <div className="flex-between gap-5">
-        theme toggler
+        <ModeToggle />
         <SignedIn>
           <UserButton
             afterSignOutUrl="/"
@@ -38,6 +41,7 @@ const Navbar = () => {
         <SignedOut>
           <SignInButton />
         </SignedOut>
+        <MobileNav />
       </div>
     </nav>
   );
