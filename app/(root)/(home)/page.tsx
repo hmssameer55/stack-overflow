@@ -5,44 +5,49 @@ import NoResult from "@/components/shared/NoResult";
 import LocalSearch from "@/components/shared/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import { HomePageFilters } from "@/constants/filters";
+import {
+  getQuestions,
+  getRecommendedQuestions,
+} from "@/lib/actions/question.action";
+import { auth } from "@clerk/nextjs";
+import { Metadata } from "next";
 import Link from "next/link";
 import React from "react";
 
-const questions = [
-  {
-    _id: "2",
-    title: "How to use React Router",
-    tags: [
-      { _id: "2", name: "React" },
-      { _id: "3", name: "React Router" },
-    ],
-    author: {
-      _id: "1",
-      name: "John Doe",
-      avatar: "/assets/images/avatar.png",
-    },
-    upvotes: "10",
-    views: 20,
-    answers: 5,
-    createdAt: new Date(),
-  },
-  {
-    _id: "3",
-    title: "How to use Next.js",
-    tags: [{ _id: "4", name: "Next.js" }],
-    author: {
-      _id: "2",
-      name: "Jooooo Doe",
-      avatar: "/assets/images/avatar.png",
-    },
-    upvotes: "15",
-    views: 25,
-    answers: 10,
-    createdAt: new Date(),
-  },
-];
+export const metadata: Metadata = {
+  title: "Home | Dev Overflow",
+};
 
-const Home = () => {
+const Home = async ({
+  searchParams,
+}: {
+  searchParams: { filter: string; q: string; page: string };
+}) => {
+  const { userId } = auth();
+
+  let result;
+
+  if (searchParams?.filter === "recommended") {
+    if (userId) {
+      result = await getRecommendedQuestions({
+        userId,
+        searchQuery: searchParams.q,
+        page: searchParams.page ? +searchParams.page : 1,
+      });
+    } else {
+      result = {
+        questions: [],
+        isNext: false,
+      };
+    }
+  } else {
+    result = await getQuestions({
+      searchQuery: searchParams.q,
+      filter: searchParams.filter,
+      page: searchParams.page ? +searchParams.page : 1,
+    });
+  }
+
   return (
     <>
       <div className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
@@ -71,10 +76,9 @@ const Home = () => {
       <HomeFilters />
 
       <div className="mt-10 flex w-full flex-col gap-6">
-        {questions.length > 0 ? (
-          questions.map((question) => (
+        {result.questions.length > 0 ? (
+          result.questions.map((question) => (
             <QuestionCard
-              clerkId={null}
               key={question._id}
               _id={question._id}
               title={question.title}
@@ -88,8 +92,8 @@ const Home = () => {
           ))
         ) : (
           <NoResult
-            title="No questions found"
-            description="There are no questions available. Be the first one to ask!"
+            title="There’s no question to show"
+            description="Be the first to break the silence! 🚀 Ask a Question and kickstart the discussion. our query could be the next big thing others learn from. Get involved! 💡"
             link="/ask-question"
             linkTitle="Ask a Question"
           />

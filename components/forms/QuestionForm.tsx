@@ -21,9 +21,8 @@ import { Badge } from "../ui/badge";
 import Image from "next/image";
 
 import { useFormStatus } from "react-dom";
-import { createQuestion, editQuestion } from "@/lib/actions/question.action";
+import { createQuestion } from "@/lib/actions/question.action";
 import { useRouter, usePathname } from "next/navigation";
-import router from "next/router";
 
 interface Props {
   type?: string;
@@ -31,15 +30,15 @@ interface Props {
   questionDetails?: string;
 }
 
-const QuestionForm = () => {
+const QuestionForm = (props: Props) => {
+  const { type, mongoUserId } = props;
+
   const { pending } = useFormStatus();
 
   const editorRef = useRef(null);
 
   const pathname = usePathname();
   const router = useRouter();
-
-  const type: any = "Ask";
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof QuestionsSchema>>({
@@ -54,20 +53,29 @@ const QuestionForm = () => {
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof QuestionsSchema>) {
     try {
-      if (type === "Edit") {
-        // await editQuestion({
-        //   questionId: parsedQuestionDetails._id,
-        //   title: values.title,
-        //   content: values.explanation,
-        //   path: pathname,
-        // });
-        // router.push(`/question/${parsedQuestionDetails._id}`);
-      } else {
-        await createQuestion();
+      // if (type === "Edit") {
+      //   await editQuestion({
+      //     questionId: parsedQuestionDetails._id,
+      //     title: values.title,
+      //     content: values.explanation,
+      //     path: pathname,
+      //   });
 
-        // router.push("/");
-      }
-    } catch (error) {}
+      //   router.push(`/question/${parsedQuestionDetails._id}`);
+      // } else {
+      await createQuestion({
+        title: values.title,
+        content: values.explanation,
+        tags: values.tags,
+        author: JSON.parse(mongoUserId),
+        path: pathname,
+      });
+
+      router.push("/");
+    } catch (error) {
+      // }
+      console.log(error);
+    }
   }
 
   const handleInputKeyDown = (
