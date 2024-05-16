@@ -80,6 +80,7 @@ const Home = async ({
           result.questions.map((question) => (
             <QuestionCard
               key={question._id}
+              clerkId={userId}
               _id={question._id}
               title={question.title}
               tags={question.tags}

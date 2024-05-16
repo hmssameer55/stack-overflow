@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -19,10 +18,9 @@ import { Button } from "../ui/button";
 import { QuestionsSchema } from "@/lib/validations";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
-
-import { useFormStatus } from "react-dom";
-import { createQuestion } from "@/lib/actions/question.action";
+import { createQuestion, editQuestion } from "@/lib/actions/question.action";
 import { useRouter, usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 
 interface Props {
   type?: string;
@@ -30,51 +28,56 @@ interface Props {
   questionDetails?: string;
 }
 
-const QuestionForm = (props: Props) => {
-  const { type, mongoUserId } = props;
-
-  const { pending } = useFormStatus();
-
+const Question = ({ type, mongoUserId, questionDetails }: Props) => {
+  const { theme: mode } = useTheme();
   const editorRef = useRef(null);
-
-  const pathname = usePathname();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+
+  const parsedQuestionDetails =
+    questionDetails && JSON.parse(questionDetails || "");
+
+  const groupedTags = parsedQuestionDetails?.tags.map((tag: any) => tag.name);
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof QuestionsSchema>>({
     resolver: zodResolver(QuestionsSchema),
     defaultValues: {
-      title: "",
-      explanation: "",
-      tags: [],
+      title: parsedQuestionDetails?.title || "",
+      explanation: parsedQuestionDetails?.content || "",
+      tags: groupedTags || [],
     },
   });
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof QuestionsSchema>) {
+    setIsSubmitting(true);
+
     try {
-      // if (type === "Edit") {
-      //   await editQuestion({
-      //     questionId: parsedQuestionDetails._id,
-      //     title: values.title,
-      //     content: values.explanation,
-      //     path: pathname,
-      //   });
+      if (type === "Edit") {
+        await editQuestion({
+          questionId: parsedQuestionDetails._id,
+          title: values.title,
+          content: values.explanation,
+          path: pathname,
+        });
 
-      //   router.push(`/question/${parsedQuestionDetails._id}`);
-      // } else {
-      await createQuestion({
-        title: values.title,
-        content: values.explanation,
-        tags: values.tags,
-        author: JSON.parse(mongoUserId),
-        path: pathname,
-      });
+        router.push(`/question/${parsedQuestionDetails._id}`);
+      } else {
+        await createQuestion({
+          title: values.title,
+          content: values.explanation,
+          tags: values.tags,
+          author: JSON.parse(mongoUserId),
+          path: pathname,
+        });
 
-      router.push("/");
+        router.push("/");
+      }
     } catch (error) {
-      // }
-      console.log(error);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -159,7 +162,7 @@ const QuestionForm = (props: Props) => {
                   }}
                   onBlur={field.onBlur}
                   onEditorChange={(content) => field.onChange(content)}
-                  initialValue={""}
+                  initialValue={parsedQuestionDetails?.content || ""}
                   init={{
                     height: 350,
                     menubar: false,
@@ -185,8 +188,8 @@ const QuestionForm = (props: Props) => {
                       "codesample | bold italic forecolor | alignleft aligncenter |" +
                       "alignright alignjustify | bullist numlist",
                     content_style: "body { font-family:Inter; font-size:16px }",
-                    // skin: mode === "dark" ? "oxide-dark" : "oxide",
-                    // content_css: mode === "dark" ? "dark" : "light",
+                    skin: mode === "dark" ? "oxide-dark" : "oxide",
+                    content_css: mode === "dark" ? "dark" : "light",
                   }}
                 />
               </FormControl>
@@ -254,9 +257,9 @@ const QuestionForm = (props: Props) => {
         <Button
           type="submit"
           className="primary-gradient w-fit !text-light-900"
-          disabled={pending}
+          disabled={isSubmitting}
         >
-          {pending ? (
+          {isSubmitting ? (
             <>{type === "Edit" ? "Editing..." : "Posting..."}</>
           ) : (
             <>{type === "Edit" ? "Edit Question" : "Ask a Question"}</>
@@ -267,4 +270,4 @@ const QuestionForm = (props: Props) => {
   );
 };
 
-export default QuestionForm;
+export default Question;
