@@ -16,6 +16,7 @@ const Page = async ({ params, searchParams }: any) => {
 
   let mongoUser;
 
+  // This check is because we also allow users to view questions without being signed in
   if (clerkId) {
     mongoUser = await getUserById({ userId: clerkId });
   }
