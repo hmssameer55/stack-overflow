@@ -11,9 +11,10 @@ export async function viewQuestion(params: ViewQuestionParams) {
 
     const { questionId, userId } = params;
 
-    // Update view count for the question
+    // Update view count for the question even if the user is not logged in
     await Question.findByIdAndUpdate(questionId, { $inc: { views: 1 } });
 
+    // If user is logged in, create an interaction to get better recommendations for the user
     if (userId) {
       const existingInteraction = await Interaction.findOne({
         user: userId,
