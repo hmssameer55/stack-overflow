@@ -70,7 +70,7 @@ const Home = async ({
         <Filter
           filters={HomePageFilters}
           otherClasses="min-h-[56px] sm:min-w-[170px]"
-          containerClasses="hidden md:flex"
+          containerClasses="hidden max-md:flex"
         />
       </div>
       <HomeFilters />
