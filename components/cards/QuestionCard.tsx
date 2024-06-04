@@ -4,8 +4,7 @@ import RenderTag from "../shared/RenderTag";
 import Metric from "../shared/Metric";
 import { formatAndDivideNumber, getTimestamp } from "@/lib/utils";
 import { SignedIn } from "@clerk/nextjs";
-// import { SignedIn } from "@clerk/nextjs";
-// import EditDeleteAction from '../shared/EditDeleteAction';
+import EditDeleteAction from "../shared/EditDeleteAction";
 
 interface QuestionProps {
   _id: string;
@@ -17,11 +16,12 @@ interface QuestionProps {
   author: {
     _id: string;
     name: string;
-    avatar: string;
+    picture: string;
+    clerkId: string;
   };
-  upvotes: string;
+  upvotes: string[];
   views: number;
-  answers: number;
+  answers: Array<object>;
   createdAt: Date;
   clerkId?: string | null;
 }
@@ -37,7 +37,7 @@ const QuestionCard = ({
   answers,
   createdAt,
 }: QuestionProps) => {
-  //   const showActionButtons = clerkId && clerkId === author.clerkId;
+  const showActionButtons = clerkId && clerkId === author.clerkId;
 
   return (
     <div className="card-wrapper rounded-[10px] p-9 sm:px-11">
@@ -53,11 +53,11 @@ const QuestionCard = ({
           </Link>
         </div>
 
-        {/* <SignedIn>
+        <SignedIn>
           {showActionButtons && (
             <EditDeleteAction type="Question" itemId={JSON.stringify(_id)} />
           )}
-        </SignedIn> */}
+        </SignedIn>
       </div>
 
       <div className="mt-3.5 flex flex-wrap gap-2">
@@ -68,7 +68,7 @@ const QuestionCard = ({
 
       <div className="flex-between mt-6 w-full flex-wrap gap-3">
         <Metric
-          imgUrl={"/assets/icons/avatar.svg"}
+          imgUrl={author.picture}
           alt="user"
           value={author.name}
           title={` - asked ${getTimestamp(createdAt)}`}
@@ -80,14 +80,14 @@ const QuestionCard = ({
           <Metric
             imgUrl="/assets/icons/like.svg"
             alt="Upvotes"
-            value={formatAndDivideNumber(Number(upvotes))}
+            value={formatAndDivideNumber(upvotes.length)}
             title=" Votes"
             textStyles="small-medium text-dark400_light800"
           />
           <Metric
             imgUrl="/assets/icons/message.svg"
             alt="message"
-            value={formatAndDivideNumber(answers)}
+            value={formatAndDivideNumber(answers.length)}
             title=" Answers"
             textStyles="small-medium text-dark400_light800"
           />

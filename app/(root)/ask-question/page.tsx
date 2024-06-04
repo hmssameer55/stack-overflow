@@ -5,13 +5,13 @@ import { auth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 const AskQuestion = async () => {
-  // const { userId } = auth();
+  const { userId } = auth();
 
-  // if (!userId) {
-  //   redirect("/sign-in");
-  // }
+  if (!userId) {
+    redirect("/sign-in");
+  }
 
-  const user = await getUserById({ userId: "1234567890" });
+  const user = await getUserById({ userId });
 
   return (
     <div>

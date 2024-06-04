@@ -70,7 +70,7 @@ const Home = async ({
         <Filter
           filters={HomePageFilters}
           otherClasses="min-h-[56px] sm:min-w-[170px]"
-          containerClasses="hidden md:flex"
+          containerClasses="hidden max-md:flex"
         />
       </div>
       <HomeFilters />
@@ -80,6 +80,7 @@ const Home = async ({
           result.questions.map((question) => (
             <QuestionCard
               key={question._id}
+              clerkId={userId}
               _id={question._id}
               title={question.title}
               tags={question.tags}

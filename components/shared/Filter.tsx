@@ -1,7 +1,4 @@
 "use client";
-
-import React from "react";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -9,9 +6,11 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../ui/select";
+import { formUrlQuery } from "@/lib/utils";
+import { useSearchParams, useRouter } from "next/navigation";
 
-interface FilterProps {
+interface Props {
   filters: {
     name: string;
     value: string;
@@ -20,26 +19,43 @@ interface FilterProps {
   containerClasses?: string;
 }
 
-const Filter = (props: FilterProps) => {
-  const { filters, otherClasses, containerClasses } = props;
+const Filter = ({ filters, otherClasses, containerClasses }: Props) => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const paramFilter = searchParams.get("filter");
+
+  const handleUpdateParams = (value: string) => {
+    const newUrl = formUrlQuery({
+      params: searchParams.toString(),
+      key: "filter",
+      value,
+    });
+
+    router.push(newUrl, { scroll: false });
+  };
 
   return (
-    <div className={cn("relative", containerClasses)}>
-      <Select>
+    <div className={`relative ${containerClasses} `}>
+      <Select
+        onValueChange={handleUpdateParams}
+        defaultValue={paramFilter || undefined}
+      >
         <SelectTrigger
-          className={cn(
-            "body-regular light-border background-light800_dark300 text-dark500_light700 border px-5 py-2.5",
-            otherClasses
-          )}
+          className={`${otherClasses} body-regular light-border background-light800_dark300 text-dark500_light700 border px-5 py-2.5`}
         >
-          <div className="line-clamp-1 flex-1 text-left">
+          <div className="line-clamp-1 flex-1 px-4 text-left">
             <SelectValue placeholder="Select a Filter" />
           </div>
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="text-dark500_light700 small-regular bg-white dark:border-none dark:bg-dark-300">
           <SelectGroup>
             {filters.map((item) => (
-              <SelectItem key={item.value} value={item.value}>
+              <SelectItem
+                key={item.value}
+                value={item.value}
+                className="px-8 py-2 focus:bg-gray-100 dark:focus:bg-dark-400"
+              >
                 {item.name}
               </SelectItem>
             ))}

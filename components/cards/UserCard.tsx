@@ -2,7 +2,9 @@ import { getTopInteractedTags } from "@/lib/actions/tag.action";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "../ui/badge";
-import RenderTag from "../shared/RenderTag";
+import dynamic from "next/dynamic";
+
+const RenderTag = dynamic(() => import("../shared/RenderTag"), { ssr: false });
 
 interface Props {
   user: {
