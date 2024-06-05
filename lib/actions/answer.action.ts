@@ -34,6 +34,7 @@ export async function createAnswer(params: CreateAnswerParams) {
       tags: questionObject.tags,
     });
 
+    // Increment author's reputation
     await User.findByIdAndUpdate(author, { $inc: { reputation: 10 } });
 
     revalidatePath(path);

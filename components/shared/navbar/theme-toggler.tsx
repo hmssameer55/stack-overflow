@@ -73,7 +73,7 @@ export default function ModeToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="dark:border-dark-400 dark:bg-dark-300"
+        className="bg-white dark:border-dark-400 dark:bg-dark-300"
       >
         <ThemeToggleItem
           icon={
