@@ -38,9 +38,6 @@ const Navbar = () => {
             }}
           />
         </SignedIn>
-        <SignedOut>
-          <SignInButton />
-        </SignedOut>
         <MobileNav />
       </div>
     </nav>
